@@ -19,23 +19,25 @@ void drawTriangle(Vector2 position, Vector2 direction) {
 }
 
 void render(const Agent& a) {
-  if (a.Velocity.x != 0 && a.Velocity.y != 0)
-    drawTriangle(a.Position, Vector2Normalize(a.Velocity));
+  Vector2 Velocity = a.getVelocity();
+  Vector2 Position = a.getPosition();
+  Vector2 LastAcceleration = a.getLastAcceleration();
+  if (Velocity.x != 0 && Velocity.y != 0)
+    drawTriangle(Position, Vector2Normalize(Velocity));
   else
-    DrawCircle(a.Position.x, a.Position.y, 10, RED);
+    DrawCircle(Position.x, Position.y, 10, RED);
 
-  Vector2 scaledVelocity = Vector2Scale(a.Velocity, 10);
-  Vector2 shownVelocity = Vector2Add(a.Position, scaledVelocity);
+  Vector2 scaledVelocity = Vector2Scale(Velocity, 10);
+  Vector2 shownVelocity = Vector2Add(Position, scaledVelocity);
 
-  Vector2 scaledAcceleration = Vector2Scale(a.LastAcceleration, 10);
-  Vector2 shownAcceleration = Vector2Add(a.Position, scaledAcceleration);
+  Vector2 scaledAcceleration = Vector2Scale(LastAcceleration, 10);
+  Vector2 shownAcceleration = Vector2Add(Position, scaledAcceleration);
 
-  DrawLine(a.Position.x, a.Position.y, shownVelocity.x, shownVelocity.y, BLUE);
-  DrawLine(a.Position.x, a.Position.y, shownAcceleration.x, shownAcceleration.y,
+  DrawLine(Position.x, Position.y, shownVelocity.x, shownVelocity.y, BLUE);
+  DrawLine(Position.x, Position.y, shownAcceleration.x, shownAcceleration.y,
            GREEN);
 
-  std::cout << "Position: " << a.Position.x << ", " << a.Position.y
-            << std::endl;
+  std::cout << "Position: " << Position.x << ", " << Position.y << std::endl;
 }
 
 int main() {
@@ -58,9 +60,9 @@ int main() {
 
     for (auto& a : Bureau) {
       a.update();
-      if (a.Position.x > 800 || a.Position.x < 0 || a.Position.y > 800 ||
-          a.Position.y < 0)
-        a.Position = {400, 400};
+      // if (Position.x > 800 || Position.x < 0 || Position.y > 800 ||
+      //     Position.y < 0)
+      //   Position = {400, 400};
       render(a);
     }
 

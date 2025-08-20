@@ -53,3 +53,8 @@ Vector2 Agent::Vector2Limit(Vector2 v, float limit) {
   if (currLength > limit) return Vector2Scale(Vector2Normalize(v), limit);
   return v;
 }
+
+Vector2 Agent::getAcceleration() const { return Acceleration; }
+Vector2 Agent::getLastAcceleration() const { return LastAcceleration; }
+Vector2 Agent::getPosition() const { return Position; }
+Vector2 Agent::getVelocity() const { return Velocity; }
