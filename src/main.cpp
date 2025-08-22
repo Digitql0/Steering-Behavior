@@ -1,10 +1,14 @@
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
-#include "Agent.hpp"
+#include "Boid.hpp"
+
+int randomInt(int min, int max) { return min + rand() % ((max + 1) - min); }
 
 void drawTriangle(Vector2 position, Vector2 direction) {
   direction = Vector2Normalize(direction);
@@ -18,10 +22,11 @@ void drawTriangle(Vector2 position, Vector2 direction) {
   DrawTriangle(v1, v2, v3, RED);
 }
 
-void render(const Agent& a) {
-  Vector2 Velocity = a.getVelocity();
-  Vector2 Position = a.getPosition();
-  Vector2 LastAcceleration = a.getLastAcceleration();
+void render(Boid* boid) {
+  Vector2 Velocity = boid->velocity;
+  Vector2 Position = boid->position;
+  Vector2 LastAcceleration = boid->lastAcceleration;
+
   if (Velocity.x != 0 && Velocity.y != 0)
     drawTriangle(Position, Vector2Normalize(Velocity));
   else
@@ -41,29 +46,38 @@ void render(const Agent& a) {
 }
 
 int main() {
-  std::vector<Agent> Bureau;
-  Vector2 pos = {400, 400};
-  Agent a(5, 0.5, 5, pos);
-  Bureau.push_back(a);
+  std::vector<Boid> boidGroup;
   InitWindow(800, 800, "lol");
   SetTargetFPS(60);
+  Vector2 mousePos = {(float)GetMouseX(), (float)GetMouseY()};
 
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawLine(200, 200, 200, 400, GREEN);
-    DrawLine(200, 200, 400, 200, BLUE);
-    Vector2 mousePos = {(float)GetMouseX(), (float)GetMouseY()};
-    for (auto& a : Bureau) {
-      a.flee(mousePos, 1);
+    mousePos = {(float)GetMouseX(), (float)GetMouseY()};
+
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      Boid boid = makeBoid(5, 0.5, mousePos);
+      printf("Made Boid\n");
+      getBehavior("seek", &boid)->target = &mousePos;
+      printf("Changed Target for Seek Behavior\n");
+      getBehavior("seek", &boid)->weight = 1.0f;
+      printf("Changed weight for seek BEhavior\n");
+      boidGroup.push_back(boid);
+      printf("added boid to boidGroup\n");
     }
 
-    for (auto& a : Bureau) {
-      a.update();
-      // if (Position.x > 800 || Position.x < 0 || Position.y > 800 ||
-      //     Position.y < 0)
-      //   Position = {400, 400};
-      render(a);
+    for (auto& boid : boidGroup) {
+      applyBehaviors(&boid);
+      printf("Applied Behaviors\n");
+      Behavior* beh = getBehavior("seek", &boid);
+      printf("%d\n", (beh->target != NULL));
+      printf("weight: %f", beh->weight);
+    }
+
+    for (auto& boid : boidGroup) {
+      update(&boid);
+      render(&boid);
     }
 
     EndDrawing();
